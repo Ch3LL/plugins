@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC>
+<html>
+  <head>
+    <title>Who is doing jenkins today?</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+  </head>
+  <body bgcolor="#FFFFFF">
+    <div id="app">
+      <fieldset style="border:none">
+      <table align="left" class="form table" border="1px #000">
+        <thead>
+          <th><font size="5">Name</font></th>
+          <th>Order</th>
+          <th>Enabled</th>
+          <th>Jenkins Today?</th>
+          <th>Delete</th>
+        </thead>
+        <tbody>
+          <tr v-for="user in users" align="center">
+            <td><font size="5">{{user.name}}</font></td>
+            <td><input style="text-align: right;" type="text" v-model="user.order" size=4/></td>
+            <td><input type="checkbox" v-model="user.enabled"></td>
+            <td v-if="user.jenkins">YES</td>
+            <td v-if="!user.jenkins">NO</td>
+            <td><button class="btn btn-dark" v-on:click="deleteUser(user.userid)">Delete</button></td>
+          </tr>
+        </tbody>
+      </table>
+      </fieldset>
+      <button class="btn btn-dark" v-on:click="updateUsers()">Update</button>
+      <form class="form-horizontal" v-on:submit="submitNewUser">
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Name</label>
+          <div class="col-sm-10">
+            <input type="text" style="width:20%;" placeholder="Enter Name" ref="name" required/><br>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Order</label>
+          <div v-if="error" style="width:20%;" class="alert alert-danger">
+            <strong>Error!</strong> {{error}}
+          </div>
+          <div class="col-sm-10">
+            <input type="text" v-bind:class="orderClass" style="width:20%;" placeholder="Enter Order" ref="order" required/>
+          </div>
+        </div>
+        <button class="btn btn-dark">Submit</button>
+      </form>
+    </div>
+    <script>
+        Vue.use(VueResource)
+        new Vue({
+          el: '#app',
+          data: {
+            users: [],
+            error: null
+          },
+          methods: {
+            updateUsers: function() {
+              for (user in this.users) {
+                this.$http.put(`http://localhost:5001/api/v1/user/${this.users[user].userid}`, this.users[user])
+              };
+              this.getUsers();
+            },
+            submitNewUser: function(event) {
+              let user = {
+                "name": this.$refs.name.value,
+                "order": this.$refs.order.value
+              }
+              event.preventDefault();
+              if (!/^\d+$/.test(this.$refs.order.value)) {
+                this.error = `Order is not a number: ${this.$refs.order.value}`;
+              } else {
+                this.$http.post("http://localhost:5001/api/v1/users", user).then(function() {
+                  this.getUsers();
+                  event.target.reset();
+                });
+              }
+            },
+            getUsers: function() {
+              this.$http.get('http://localhost:5001/api/v1/users').then(response => {
+                  this.users = response.data.users;
+              });
+            },
+            deleteUser: function(userid) {
+              this.$http.delete(`http://localhost:5001/api/v1/users/${userid}`).then(this.getUsers)
+            },
+          },
+          computed: {
+            orderClass: function() {
+              if (this.error) {
+                return {'form-control': true, 'is-invalid': true}
+              }
+              return {}
+            }
+          },
+          created: function() {
+            this.getUsers();
+          },
+        });
+      </script>
+  </body>
+</html>
