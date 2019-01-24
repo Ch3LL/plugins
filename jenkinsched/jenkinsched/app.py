@@ -108,4 +108,4 @@ def setup_app():
 
 
 if __name__ == '__main__':
-    setup_app().run()
+    setup_app().run(port=5001)
