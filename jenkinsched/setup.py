@@ -22,8 +22,8 @@ class InstallData(install_data):
             with open(pkgfile, 'r') as tmpfile:
                 filedata = tmpfile.read()
             filedata = filedata.replace(
-                'http://localhost:5000',
-                'https://jenkinschedule.saltstack.com'
+                'http://localhost:5001',
+                'https://testsched.saltstack.com'
             )
             with open(pkgfile, 'w') as tmpfile:
                 print(filedata, file=tmpfile)
