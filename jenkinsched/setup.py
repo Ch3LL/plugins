@@ -46,7 +46,7 @@ setup(
     packages=packages,
     include_package_data=True,
     data_files=[
-        ('share/nginx/html_jenkins/', ['jenkinsched/html_jenkins/index.html']),
-        ('share/nginx/html_jenkins/edit/', ['jenkinsched/html_jenkins/edit/index.html']),
+        ('share/nginx/html_jenkins/', ['jenkinsched/html/index.html']),
+        ('share/nginx/html_jenkins/edit/', ['jenkinsched/html/edit/index.html']),
     ],
 )
